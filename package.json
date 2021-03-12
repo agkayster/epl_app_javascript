@@ -1,0 +1,25 @@
+{
+  "name": "epl-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "agkayster <ejike.chiboka@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "@babel/eslint-parser": "^7.13.10",
+    "dotenv-webpack": "^7.0.1",
+    "eslint": "^7.21.0",
+    "html-webpack-plugin": "^5.3.1",
+    "path": "^0.12.7",
+    "webpack": "^5.25.0",
+    "webpack-dev-server": "^3.11.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.13.10",
+    "@babel/preset-env": "^7.13.10",
+    "@babel/preset-react": "^7.12.13",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.2.2"
+  }
+}
