@@ -1,4 +1,4 @@
-import "./style.scss";
+// import "./style.scss";
 
 const selectMatch = document.querySelector(".matchstatus");
 const selectHomeTeam = document.querySelector(".hometeam");
@@ -17,6 +17,8 @@ fetch(
     getHomeTeams();
     getAwayTeams();
   });
+
+// Get all the Match status/Category //
 
 function getAllMatchCategory() {
   selectMatch.innerHTML = "";
@@ -50,6 +52,8 @@ function getAllMatchCategory() {
   });
 }
 
+// Implement the event listener for all statuses and categories //
+
 selectMatch.addEventListener("change", () => {
   console.log("get status listener =>", selectMatch.value);
   if (selectMatch.value === "ALL") {
@@ -60,6 +64,8 @@ selectMatch.addEventListener("change", () => {
     getAwayTeamsByStatus(selectMatch.value);
   }
 });
+
+// Get all the Home teams //
 
 const getHomeTeams = () => {
   selectHomeTeam.innerHTML = "";
@@ -80,6 +86,8 @@ const getHomeTeams = () => {
   });
 };
 
+// Get all the Away teams //
+
 const getAwayTeams = () => {
   selectAwayTeam.innerHTML = "";
   let awayTeams = [];
@@ -96,6 +104,12 @@ const getAwayTeams = () => {
     selectAwayTeam.appendChild(eplAwayTeams);
   });
 };
+
+selectHomeTeam.addEventListener("change", () => {
+  console.log("get home team listener =>", selectHomeTeam);
+});
+
+// Get all the Home teams based on the Categories/Statuses //
 
 const getHomeTeamsByStatus = (status) => {
   console.log("get home status =>", status);
@@ -132,6 +146,8 @@ const getHomeTeamsByStatus = (status) => {
   });
 };
 
+// Get all the Away Teams based on the Categories/Statuses //
+
 const getAwayTeamsByStatus = (status) => {
   console.log("get away status =>", status);
   selectAwayTeam.innerHTML = "";
@@ -146,8 +162,3 @@ const getAwayTeamsByStatus = (status) => {
     selectAwayTeam.appendChild(eplAwayTeams);
   });
 };
-
-selectHomeTeam.addEventListener("change", () => {
-  console.log("get home team listener =>", selectHomeTeam);
-  
-});
