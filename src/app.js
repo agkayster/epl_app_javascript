@@ -1,5 +1,3 @@
-// import "./style.scss";
-
 const selectMatch = document.querySelector(".matchstatus");
 const selectHomeTeam = document.querySelector(".hometeam");
 const selectAwayTeam = document.querySelector(".awayteam");
@@ -108,6 +106,7 @@ const getAwayTeams = () => {
 selectHomeTeam.addEventListener("change", () => {
   console.log("get home team listener =>", selectHomeTeam);
 });
+console.log(true, selectHomeTeam);
 
 // Get all the Home teams based on the Categories/Statuses //
 
