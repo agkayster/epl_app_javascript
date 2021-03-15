@@ -3,19 +3,20 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
+  mode: "development",
   entry: "./src/app.js",
   output: {
     path: path.resolve("dist"),
     filename: "bundle.js",
   },
-  devtool: "source-maps",
+  devtool: 'production' ? false : 'source-map',
   module: {
     rules: [
-      { test: /\.jsx?$/, loader: "babel-loader", exclude: /node_modules/ },
-      { test: /\.css$/, loader: ["style-loader", "css-loader"] },
+      { test: /\.jsx?$/, use: "babel-loader", exclude: /node_modules/ },
+      { test: /\.css$/, use: ["style-loader", "css-loader"] },
       {
         test: /\.s(a|c)ss$/,
-        loader: ["style-loader", "css-loader", "sass-loader"],
+        use: ["style-loader", "css-loader", "sass-loader"],
       },
     ],
   },

@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Epl-App</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style.scss" />
   </head>
   <body>
     <script type="module" src="app.js"></script>
@@ -16,7 +16,21 @@
             <div class="control">
               <label class="label">Match Category</label>
               <div class="select">
-                <select></select>
+                <select class="matchstatus"></select>
+              </div>
+            </div>
+          </div>
+          <div class="field is-grouped">
+            <div class="control">
+              <label class="label">Home Team</label>
+              <div class="select">
+                <select class="hometeam"></select>
+              </div>
+            </div>
+            <div class="control">
+              <label class="label">Away Team</label>
+              <div class="select">
+                <select class="awayteam"></select>
               </div>
             </div>
           </div>
