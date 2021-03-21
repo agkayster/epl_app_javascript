@@ -65,10 +65,12 @@ selectMatchDate.addEventListener("change", () => {
     getAllMatchTimes();
     getAllMatchCategory();
     getHomeTeams();
+    getAwayTeams();
   } else {
     getAllMatchTimesForDates(selectMatchDate.value);
     getAllMatchCategoryForDates(selectMatchDate.value);
     getHomeTeamsByDates(selectMatchDate.value);
+    getAwayTeamsByDates(selectMatchDate.value);
   }
 });
 
@@ -102,22 +104,32 @@ const getAllMatchTimes = () => {
   });
 };
 
+// Implement Event Listener to get Category based on Time //
+
+selectMatchTime.addEventListener("change", () => {
+  if (selectMatchTime.value === "ALL") {
+    getAllMatchCategory();
+  } else {
+    getAllMatchCategoryForTime(selectMatchTime.value);
+  }
+});
+
 // Get all Match times based on Dates //
 
 const getAllMatchTimesForDates = (date) => {
   selectMatchTime.innerHTML = "";
   let newTime;
   let matchTimeForDates = eplData.map((data) => {
-    let date = new Date(data.match_start);
-    if (`${date.getMinutes()}`.length < 2) {
-      newTime = `${date.getHours()}:${date.getMinutes()}0:${date.getSeconds()}0`;
+    let dDate = new Date(data.match_start);
+    if (`${dDate.getMinutes()}`.length < 2) {
+      newTime = `${dDate.getHours()}:${dDate.getMinutes()}0:${dDate.getSeconds()}0`;
     } else {
-      newTime = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}0`;
+      newTime = `${dDate.getHours()}:${dDate.getMinutes()}:${dDate.getSeconds()}0`;
     }
     return {
-      matchDate: `${date.getDate()}/${
-        date.getMonth() + 1
-      }/${date.getFullYear()}`,
+      matchDate: `${dDate.getDate()}/${
+        dDate.getMonth() + 1
+      }/${dDate.getFullYear()}`,
       matchTime: newTime,
     };
   });
@@ -132,7 +144,16 @@ const getAllMatchTimesForDates = (date) => {
     `;
     selectMatchTime.appendChild(eplMatchTimes);
   });
+  selectMatchTime.addEventListener("change", () => {
+    result.filter((item) => {
+      if (selectMatchTime.value === item.matchTime) {
+        getAllMatchCategoryForDatesAndTime(selectMatchTime.value, date);
+      }
+    });
+  });
 };
+
+//================================================================================> Match Category/Status
 
 // Get all the Match status/Category //
 
@@ -170,7 +191,6 @@ function getAllMatchCategory() {
 // Get all the Match status/Category based on Dates //
 
 const getAllMatchCategoryForDates = (date) => {
-  console.log("match dates for category =>", date);
   selectMatchCategory.innerHTML = "";
   let dDate;
   let newDate;
@@ -212,6 +232,106 @@ const getAllMatchCategoryForDates = (date) => {
     result.filter((team) => {
       if (team.matchCategory === selectMatchCategory.value) {
         getHomeTeamsByCategoryAndDate(selectMatchCategory.value, date);
+        getAwayTeamsByCategoryAndDate(selectMatchCategory.value, date);
+      }
+    });
+  });
+};
+
+// Get all Match Category/Status based on Time //
+
+const getAllMatchCategoryForTime = (time) => {
+  selectMatchCategory.innerHTML = "";
+  let dDate;
+  let newTime;
+
+  let newMatch = eplData.map((data) => {
+    dDate = new Date(data.match_start);
+    if (`${dDate.getMinutes()}`.length < 2) {
+      newTime = `${dDate.getHours()}:${dDate.getMinutes()}0:${dDate.getSeconds()}0`;
+    } else {
+      newTime = `${dDate.getHours()}:${dDate.getMinutes()}:${dDate.getSeconds()}0`;
+    }
+    return {
+      matchCategory:
+        data.status === ""
+          ? "NOT PLAYED"
+          : data.status === "notstarted"
+          ? "YET TO BE PLAYED"
+          : data.status === "finished"
+          ? "FINISHED"
+          : data.status === "postponed"
+          ? "POSTPONED"
+          : data.status,
+      matchTime: newTime,
+    };
+  });
+
+  let result = newMatch.filter((item) => item.matchTime === time);
+  console.log("result filter for match status with dates =>", result);
+  result.forEach((item) => {
+    const eplCategoryTimes = document.createElement("option");
+    const val = document.createAttribute("value");
+    val.value = `${item.matchCategory}`;
+    eplCategoryTimes.setAttributeNode(val);
+    eplCategoryTimes.innerHTML = `
+    ${item.matchCategory}
+        `;
+    selectMatchCategory.appendChild(eplCategoryTimes);
+  });
+};
+
+// Get all Match category based on Dates and Times //
+
+const getAllMatchCategoryForDatesAndTime = (time, date) => {
+  console.log("get category based on dates and time =>", time, date);
+  selectMatchCategory.innerHTML = "";
+  let dDate;
+  let newTime;
+  let newDate;
+
+  let newMatch = eplData.map((data) => {
+    dDate = new Date(data.match_start);
+    if (`${dDate.getMinutes()}`.length < 2) {
+      newTime = `${dDate.getHours()}:${dDate.getMinutes()}0:${dDate.getSeconds()}0`;
+    } else {
+      newTime = `${dDate.getHours()}:${dDate.getMinutes()}:${dDate.getSeconds()}0`;
+    }
+    newDate = `${dDate.getDate()}/${
+      dDate.getMonth() + 1
+    }/${dDate.getFullYear()}`;
+    return {
+      matchCategory:
+        data.status === ""
+          ? "NOT PLAYED"
+          : data.status === "notstarted"
+          ? "YET TO BE PLAYED"
+          : data.status === "finished"
+          ? "FINISHED"
+          : data.status === "postponed"
+          ? "POSTPONED"
+          : data.status,
+      matchTime: newTime,
+      matchDate: newDate,
+    };
+  });
+  let result = newMatch.filter(
+    (item) => item.matchTime === time && item.matchDate === date
+  );
+  result.forEach((item) => {
+    const eplCategoryTimesDates = document.createElement("option");
+    const val = document.createAttribute("value");
+    val.value = `${item.matchCategory}`;
+    eplCategoryTimesDates.setAttributeNode(val);
+    eplCategoryTimesDates.innerHTML = `
+    ${item.matchCategory}
+        `;
+    selectMatchCategory.appendChild(eplCategoryTimesDates);
+  });
+  selectMatchCategory.addEventListener("click", () => {
+    result.filter((item) => {
+      if (item.matchCategory === selectMatchCategory.value) {
+        getHomeTeamsByCategoryDateTime(selectMatchCategory.value, time, date);
       }
     });
   });
@@ -225,9 +345,11 @@ selectMatchCategory.addEventListener("change", () => {
     getAwayTeams();
   } else {
     getHomeTeamsByStatus(selectMatchCategory.value);
-    // getAwayTeamsByStatus(selectMatch.value);
+    getAwayTeamsByStatus(selectMatchCategory.value);
   }
 });
+
+//=========================================================================================> Home Teams
 
 // Get all the Home teams //
 
@@ -363,7 +485,68 @@ const getHomeTeamsByDates = (date) => {
   });
 
   result = newHomeTeam.filter((team) => team.matchDate === date);
-  console.log("result of status filter =>", result);
+  console.log("result of home team filter based on dates =>", result);
+  result.forEach((team) => {
+    const eplHomeTeams = document.createElement("option");
+    const val = document.createAttribute("value");
+    val.value = `${team.homeTeam}`;
+    eplHomeTeams.setAttributeNode(val);
+    eplHomeTeams.innerHTML = `
+      ${team.homeTeam}
+      `;
+    selectHomeTeam.appendChild(eplHomeTeams);
+  });
+  selectHomeTeam.addEventListener("change", () => {
+    result.filter((team) => {
+      if (team.homeTeam === selectHomeTeam.value) {
+        getAwayTeamsByHomeTeamDate(selectHomeTeam.value, date);
+      }
+    });
+  });
+};
+
+// Get all the Home teams based on the Dates, Categories and times of the Matches //
+
+const getHomeTeamsByCategoryDateTime = (matchCat, time, date) => {
+  selectHomeTeam.innerHTML = "";
+  let dDate;
+  let newDate;
+  let newHomeTeam;
+  let newTime;
+  newHomeTeam = eplData.map((data) => {
+    dDate = new Date(data.match_start);
+    newDate = `${dDate.getDate()}/${
+      dDate.getMonth() + 1
+    }/${dDate.getFullYear()}`;
+    if (`${dDate.getMinutes()}`.length < 2) {
+      newTime = `${dDate.getHours()}:${dDate.getMinutes()}0:${dDate.getSeconds()}0`;
+    } else {
+      newTime = `${dDate.getHours()}:${dDate.getMinutes()}:${dDate.getSeconds()}0`;
+    }
+    return {
+      homeTeam: data.home_team.name,
+      matchDate: newDate,
+      matchTime: newTime,
+      status:
+        data.status === ""
+          ? "NOT PLAYED"
+          : data.status === "notstarted"
+          ? "YET TO BE PLAYED"
+          : data.status === "finished"
+          ? "FINISHED"
+          : data.status === "postponed"
+          ? "POSTPONED"
+          : data.status,
+    };
+  });
+
+  let result = newHomeTeam.filter(
+    (item) =>
+      item.status === matchCat &&
+      item.matchTime === time &&
+      item.matchDate === date
+  );
+  console.log("result filter for category, dates and times =>", result);
   result.forEach((team) => {
     const eplHomeTeams = document.createElement("option");
     const val = document.createAttribute("value");
@@ -375,7 +558,7 @@ const getHomeTeamsByDates = (date) => {
     selectHomeTeam.appendChild(eplHomeTeams);
   });
 };
-
+//===================================================================================================> AWAY TEAMS
 // Get all the Away teams //
 
 const getAwayTeams = () => {
@@ -403,13 +586,33 @@ const getAwayTeams = () => {
 const getAwayTeamsByStatus = (status) => {
   console.log("get away status =>", status);
   selectAwayTeam.innerHTML = "";
+  let newAwayTeam;
+  let result;
 
-  const result = eplData.filter((match) => match.status === status);
-  console.log("away result =>", result);
+  newAwayTeam = eplData.map((data) => ({
+    homeTeam: data.home_team.name,
+    awayTeam: data.away_team.name,
+    status:
+      data.status === ""
+        ? "NOT PLAYED"
+        : data.status === "notstarted"
+        ? "YET TO BE PLAYED"
+        : data.status === "finished"
+        ? "FINISHED"
+        : data.status === "postponed"
+        ? "POSTPONED"
+        : data.status,
+  }));
+
+  result = newAwayTeam.filter((team) => team.status === status);
+  console.log("result of status filter =>", result);
   result.forEach((team) => {
     const eplAwayTeams = document.createElement("option");
+    const val = document.createAttribute("value");
+    val.value = `${team.homeTeam}`;
+    eplAwayTeams.setAttributeNode(val);
     eplAwayTeams.innerHTML = `
-      ${team}
+      ${team.awayTeam}
       `;
     selectAwayTeam.appendChild(eplAwayTeams);
   });
@@ -441,6 +644,130 @@ const getAwayTeamsByHomeTeam = (homeT, status) => {
     (team) => team.homeTeam === homeT && team.status === status
   );
   console.log("result of away team filter =>", result);
+  result.forEach((team) => {
+    const eplAwayTeams = document.createElement("option");
+    const val = document.createAttribute("value");
+    val.value = `${team.awayTeam}`;
+    eplAwayTeams.setAttributeNode(val);
+    eplAwayTeams.innerHTML = `
+      ${team.awayTeam}
+      `;
+    selectAwayTeam.appendChild(eplAwayTeams);
+  });
+};
+
+// Get all Away teams based on the Dates of the Matches //
+
+const getAwayTeamsByDates = (date) => {
+  selectAwayTeam.innerHTML = "";
+  let dDate;
+  let newDate;
+  let newAwayTeam;
+  let result;
+
+  newAwayTeam = eplData.map((data) => {
+    dDate = new Date(data.match_start);
+    newDate = `${dDate.getDate()}/${
+      dDate.getMonth() + 1
+    }/${dDate.getFullYear()}`;
+    return {
+      awayTeam: data.away_team.name,
+      matchDate: newDate,
+    };
+  });
+
+  result = newAwayTeam.filter((team) => team.matchDate === date);
+  console.log("result of filter for away team based on match date =>", result);
+
+  result.forEach((team) => {
+    const eplAwayTeams = document.createElement("option");
+    const val = document.createAttribute("value");
+    val.value = `${team.awayTeam}`;
+    eplAwayTeams.setAttributeNode(val);
+    eplAwayTeams.innerHTML = `
+      ${team.awayTeam}
+      `;
+    selectAwayTeam.appendChild(eplAwayTeams);
+  });
+};
+
+// Get all Away teams based on the Home teams and Dates //
+
+const getAwayTeamsByHomeTeamDate = (homeT, date) => {
+  console.log("get away teams by home team and date =>", homeT, date);
+  selectAwayTeam.innerHTML = "";
+  let dDate;
+  let newDate;
+  let newAwayTeam;
+  let result;
+  newAwayTeam = eplData.map((data) => {
+    dDate = new Date(data.match_start);
+    newDate = `${dDate.getDate()}/${
+      dDate.getMonth() + 1
+    }/${dDate.getFullYear()}`;
+    return {
+      homeTeam: data.home_team.name,
+      awayTeam: data.away_team.name,
+      matchDate: newDate,
+    };
+  });
+
+  result = newAwayTeam.filter(
+    (team) => team.homeTeam === homeT && team.matchDate === date
+  );
+  console.log(
+    "result of away team filter based on home team and date =>",
+    result
+  );
+  result.forEach((team) => {
+    const eplAwayTeams = document.createElement("option");
+    const val = document.createAttribute("value");
+    val.value = `${team.awayTeam}`;
+    eplAwayTeams.setAttributeNode(val);
+    eplAwayTeams.innerHTML = `
+      ${team.awayTeam}
+      `;
+    selectAwayTeam.appendChild(eplAwayTeams);
+  });
+};
+
+// Get all Away teams based on Match Category and Dates //
+
+const getAwayTeamsByCategoryAndDate = (matchCat, date) => {
+  console.log("get away teams based on category and date =>", matchCat, date);
+  selectAwayTeam.innerHTML = "";
+  let dDate;
+  let newDate;
+  let newAwayTeam;
+  let result;
+  newAwayTeam = eplData.map((data) => {
+    dDate = new Date(data.match_start);
+    newDate = `${dDate.getDate()}/${
+      dDate.getMonth() + 1
+    }/${dDate.getFullYear()}`;
+    return {
+      awayTeam: data.away_team.name,
+      matchDate: newDate,
+      status:
+        data.status === ""
+          ? "NOT PLAYED"
+          : data.status === "notstarted"
+          ? "YET TO BE PLAYED"
+          : data.status === "finished"
+          ? "FINISHED"
+          : data.status === "postponed"
+          ? "POSTPONED"
+          : data.status,
+    };
+  });
+
+  result = newAwayTeam.filter(
+    (item) => item.status === matchCat && item.matchDate === date
+  );
+  console.log(
+    "result of filter for away team based on Category and date =>",
+    result
+  );
   result.forEach((team) => {
     const eplAwayTeams = document.createElement("option");
     const val = document.createAttribute("value");
