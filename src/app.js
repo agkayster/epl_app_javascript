@@ -7,6 +7,13 @@ const selectHomeTeam = document.querySelector(".hometeam");
 const selectAwayTeam = document.querySelector(".awayteam");
 const selectMatchDate = document.querySelector(".matchDate");
 const selectMatchTime = document.querySelector(".matchTime");
+const selectMatchVenue = document.querySelector(".matchvenue");
+const hteam = document.getElementById("homeTeam");
+const ateam = document.getElementById("awayTeam");
+const mVenue = document.getElementById("venue");
+const mDate = document.getElementById("date");
+const mTime = document.getElementById("time");
+const scores = document.getElementById("matchscores");
 
 let eplData = [];
 
@@ -24,6 +31,7 @@ async function getEplData() {
         getAwayTeams();
         getAllDates();
         getAllMatchTimes();
+        getAllVenues();
       });
   } catch (e) {
     console.log("error", e);
@@ -66,13 +74,17 @@ selectMatchDate.addEventListener("change", () => {
     getAllMatchCategory();
     getHomeTeams();
     getAwayTeams();
+    mDate.innerHTML = "";
   } else {
     getAllMatchTimesForDates(selectMatchDate.value);
     getAllMatchCategoryForDates(selectMatchDate.value);
     getHomeTeamsByDates(selectMatchDate.value);
     getAwayTeamsByDates(selectMatchDate.value);
+    mDate.innerHTML = selectMatchDate.value;
   }
 });
+
+//=====================================================================================> Match Times
 
 // Get all Times of Matches //
 
@@ -109,8 +121,10 @@ const getAllMatchTimes = () => {
 selectMatchTime.addEventListener("change", () => {
   if (selectMatchTime.value === "ALL") {
     getAllMatchCategory();
+    mTime.innerHTML = "";
   } else {
     getAllMatchCategoryForTime(selectMatchTime.value);
+    mTime.innerHTML = selectMatchTime.value;
   }
 });
 
@@ -284,7 +298,6 @@ const getAllMatchCategoryForTime = (time) => {
 // Get all Match category based on Dates and Times //
 
 const getAllMatchCategoryForDatesAndTime = (time, date) => {
-  console.log("get category based on dates and time =>", time, date);
   selectMatchCategory.innerHTML = "";
   let dDate;
   let newTime;
@@ -350,6 +363,16 @@ selectMatchCategory.addEventListener("change", () => {
 });
 
 //=========================================================================================> Home Teams
+
+selectHomeTeam.addEventListener("change", () => {
+  if (selectHomeTeam.value === "ALL") {
+    getAllVenues();
+    hteam.innerHTML = "";
+  } else {
+    getVenuesForHomeTeams(selectHomeTeam.value);
+    hteam.innerHTML = selectHomeTeam.value;
+  }
+});
 
 // Get all the Home teams //
 
@@ -525,6 +548,7 @@ const getHomeTeamsByCategoryDateTime = (matchCat, time, date) => {
     }
     return {
       homeTeam: data.home_team.name,
+      awayTeam: data.away_team.name,
       matchDate: newDate,
       matchTime: newTime,
       status:
@@ -546,7 +570,10 @@ const getHomeTeamsByCategoryDateTime = (matchCat, time, date) => {
       item.matchTime === time &&
       item.matchDate === date
   );
-  console.log("result filter for category, dates and times =>", result);
+  console.log(
+    "result filter for home team based on category, dates and times =>",
+    result
+  );
   result.forEach((team) => {
     const eplHomeTeams = document.createElement("option");
     const val = document.createAttribute("value");
@@ -584,7 +611,6 @@ const getAwayTeams = () => {
 // Get all the Away Teams based on the Categories/Statuses //
 
 const getAwayTeamsByStatus = (status) => {
-  console.log("get away status =>", status);
   selectAwayTeam.innerHTML = "";
   let newAwayTeam;
   let result;
@@ -694,21 +720,26 @@ const getAwayTeamsByDates = (date) => {
 // Get all Away teams based on the Home teams and Dates //
 
 const getAwayTeamsByHomeTeamDate = (homeT, date) => {
-  console.log("get away teams by home team and date =>", homeT, date);
   selectAwayTeam.innerHTML = "";
   let dDate;
   let newDate;
   let newAwayTeam;
   let result;
+  let newScores;
   newAwayTeam = eplData.map((data) => {
     dDate = new Date(data.match_start);
     newDate = `${dDate.getDate()}/${
       dDate.getMonth() + 1
     }/${dDate.getFullYear()}`;
+    data.stats.ft_score !== null && data.stats.ft_score !== "-"
+      ? (newScores = data.stats.ft_score)
+      : (newScores = "No scores");
+
     return {
       homeTeam: data.home_team.name,
       awayTeam: data.away_team.name,
       matchDate: newDate,
+      scores: newScores,
     };
   });
 
@@ -720,6 +751,8 @@ const getAwayTeamsByHomeTeamDate = (homeT, date) => {
     result
   );
   result.forEach((team) => {
+    scores.innerHTML = `${team.scores}`;
+    ateam.innerHTML = `${team.awayTeam}`;
     const eplAwayTeams = document.createElement("option");
     const val = document.createAttribute("value");
     val.value = `${team.awayTeam}`;
@@ -734,7 +767,6 @@ const getAwayTeamsByHomeTeamDate = (homeT, date) => {
 // Get all Away teams based on Match Category and Dates //
 
 const getAwayTeamsByCategoryAndDate = (matchCat, date) => {
-  console.log("get away teams based on category and date =>", matchCat, date);
   selectAwayTeam.innerHTML = "";
   let dDate;
   let newDate;
@@ -777,5 +809,86 @@ const getAwayTeamsByCategoryAndDate = (matchCat, date) => {
       ${team.awayTeam}
       `;
     selectAwayTeam.appendChild(eplAwayTeams);
+  });
+};
+
+//==================================================================================> Venues
+
+selectMatchVenue.addEventListener("click", () => {
+  if (selectMatchVenue.value === "ALL") {
+    mVenue.innerHTML = "";
+  } else {
+    mVenue.innerHTML = selectMatchVenue.value;
+  }
+});
+
+// Get al Venues //
+
+const getAllVenues = () => {
+  selectMatchVenue.innerHTML = "";
+  let venueOfMatch = [];
+  let newVenue;
+  let newMatchVenue;
+  eplData.map((data) => {
+    if (data.venue !== null) {
+      newVenue = data.venue.name;
+    } else {
+      newVenue = "none";
+    }
+    venueOfMatch.push(newVenue);
+  });
+  newMatchVenue = [...new Set(venueOfMatch)];
+  newMatchVenue.unshift("ALL");
+  console.log("venues of all matches =>", newMatchVenue);
+
+  newMatchVenue.forEach((venue) => {
+    const eplMatchVenues = document.createElement("option");
+    const val = document.createAttribute("value");
+    val.value = `${venue}`;
+    eplMatchVenues.setAttributeNode(val);
+    eplMatchVenues.innerHTML = `
+    ${venue}
+    `;
+    selectMatchVenue.appendChild(eplMatchVenues);
+  });
+};
+
+// Get all Venues based on Home Teams //
+
+const getVenuesForHomeTeams = (homeT) => {
+  selectMatchVenue.innerHTML = "";
+
+  let newVenue;
+
+  let newMatchVenue = eplData.map((data) => {
+    if (data.venue !== null) {
+      newVenue = data.venue.name;
+    } else {
+      newVenue = "none";
+    }
+
+    return {
+      matchVenue: newVenue,
+      homeTeam: data.home_team.name,
+    };
+  });
+
+  let result = newMatchVenue.filter((item) => item.homeTeam === homeT);
+
+  let newResult = result.map((item) => item.matchVenue);
+
+  let nRes = [...new Set(newResult)];
+  console.log("result singular =>", nRes);
+
+  nRes.forEach((venue) => {
+    mVenue.innerHTML = `${venue}`;
+    const eplMatchVenues = document.createElement("option");
+    const val = document.createAttribute("value");
+    val.value = `${venue}`;
+    eplMatchVenues.setAttributeNode(val);
+    eplMatchVenues.innerHTML = `
+    ${venue}
+    `;
+    selectMatchVenue.appendChild(eplMatchVenues);
   });
 };
