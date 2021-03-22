@@ -1,2 +1,43 @@
 @charset 'utf-8';
-@import '~bulma/bulma'
+@import "~bulma/bulma";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+section.section {
+  background-image: url("https://i.imgur.com/4w11ugw.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 300vh;
+}
+
+.label {
+  color: white;
+}
+
+#matchscores {
+  color: white;
+}
+
+#venue {
+  color: white;
+}
+
+#date {
+  color: white;
+}
+
+#time {
+  color: white;
+}
+
+#awayTeam {
+  color: white;
+}
+
+#homeTeam {
+  color: white;
+}
